@@ -1,3 +1,8 @@
+.claude
 AI_CV_Curriculum.xlsx
 CLAUDE.md
-~$AI_CV_Curriculum.xlsx
+/Session 9/data
+*.pth
+*.pt
+*.json
+~$*.pptx
