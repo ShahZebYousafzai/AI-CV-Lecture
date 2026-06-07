@@ -2,7 +2,9 @@ import cv2
 import torch
 import numpy as np
 
-model_type = "DPT_Large"   # faster for CPU
+# model_type = "DPT_Large"     # MiDaS v3 - Large     (highest accuracy, slowest inference speed)
+#model_type = "DPT_Hybrid"   # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed)
+model_type = "MiDaS_small"   # faster for CPU
 
 midas = torch.hub.load("intel-isl/MiDaS", model_type)
 
@@ -11,9 +13,10 @@ midas.to(device)
 midas.eval()
 
 midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
-transform = midas_transforms.dpt_transform
+transform = midas_transforms.small_transform
+# transform = midas_transforms.dpt_transform
 
-cap = cv2.VideoCapture(3)
+cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
