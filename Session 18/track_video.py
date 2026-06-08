@@ -389,8 +389,9 @@ def parse_args():
                    help="DeepSORT ReID backbone (default: mobilenet)")
 
     # Visualisation
-    p.add_argument("--show",     action="store_true",
-                   help="Display tracking window in real time (press Q to quit)")
+    p.add_argument("--no-show", dest="show", action="store_false",
+                   help="Disable real-time display window")
+    p.set_defaults(show=True)
     p.add_argument("--no-trace", dest="trace", action="store_false",
                    help="Disable trajectory trail annotation")
     p.add_argument("--trace-len", type=int, default=40,
