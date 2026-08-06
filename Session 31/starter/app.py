@@ -1,8 +1,8 @@
+import uuid
+
 import streamlit as st
-from langchain_core.messages import AIMessage, HumanMessage
 
-from support_bot.chatbot import build_chain
-
+from support_bot.agent import build_agent
 from support_bot.config import MODEL_NAME
 
 st.set_page_config(page_title="Acme Support", page_icon="🎧")
@@ -10,43 +10,59 @@ st.title("🎧 Acme Support Assistant")
 
 
 @st.cache_resource
-def get_chain():
-    return build_chain()
+def get_agent():
+    return build_agent()
 
+agent = get_agent()
 
-chain = get_chain()
+if "thread_id" not in st.session_state:
+    st.session_state.thread_id = str(uuid.uuid4())
+if "transcript" not in st.session_state:
+    st.session_state.transcript = []
 
-# 1. Create the transcript once per browser session.
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-# 2. Re-draw the whole transcript on every run.
-for message in st.session_state.history:
-    role = "user" if isinstance(message, HumanMessage) else "assistant"
-    with st.chat_message(role):
-        st.markdown(message.text)
-
-# 3. Handle a new message.
-if user_text := st.chat_input("How can I help?"):
-    with st.chat_message("user"):
-        st.markdown(user_text)
-
-    with st.chat_message("assistant"):
-        reply = st.write_stream(
-            chain.stream({
-                "input": user_text,
-                "history": st.session_state.history,
-            })
-        )
-
-    # 4. Append AFTER the call, so the model never sees the current turn twice.
-    st.session_state.history.append(HumanMessage(user_text))
-    st.session_state.history.append(AIMessage(reply))
+config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
 with st.sidebar:
     st.subheader("Session")
     st.caption(f"Model: `{MODEL_NAME}`")
-    st.caption(f"Turns stored: {len(st.session_state.get('history', [])) // 2}")
+    st.caption(f"Thread: `{st.session_state.thread_id[:8]}`")
     if st.button("🔄 New conversation", width="stretch"):
-        st.session_state.history = []
+        st.session_state.thread_id = str(uuid.uuid4())
+        st.session_state.transcript = []
         st.rerun()
+
+for role, text in st.session_state.transcript:
+    with st.chat_message(role):
+        st.markdown(text)
+
+if user_text := st.chat_input("How can I help?"):
+    with st.chat_message("user"):
+        st.markdown(user_text)
+    st.session_state.transcript.append(("user", user_text))
+
+    with st.chat_message("assistant"):
+        with st.status("Working…", expanded=True) as status:
+            result = agent.invoke(
+                {"messages": [{"role": "user", "content": user_text}]},
+                config,
+            )
+            # Only inspect messages produced by THIS turn.
+            messages = result["messages"]
+            start = max(i for i, m in enumerate(messages) if m.type == "human")
+            for message in messages[start:]:
+                for call in getattr(message, "tool_calls", None) or []:
+                    st.write(f"🔧 `{call['name']}` ← `{call['args']}`")
+            status.update(label="Done", state="complete", expanded=False)
+
+        reply = result.get("structured_response")
+        if reply is None:                       # nothing structured came back
+            answer = messages[-1].text
+            st.markdown(answer)
+        else:
+            answer = reply.answer
+            st.markdown(answer)
+            st.caption(
+                f"`{reply.category}` · sentiment `{reply.sentiment}` · "
+                f"needs_human `{reply.needs_human}` · order `{reply.order_id}`"
+            )
+        st.session_state.transcript.append(("assistant", answer))
