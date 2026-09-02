@@ -157,16 +157,16 @@ A structured one-on-one training program covering Computer Vision, Deep Learning
 
 ### Phase 9 — RAG Systems (Weeks 23–25)
 
-| Session | Day | Topic | Type |
-|---|---|---|---|
-| 67 | Wednesday | RAG Fundamentals | Theory |
-| 68 | Friday | Vector Databases (FAISS, ChromaDB, Pinecone) | Mixed |
-| 69 | Monday | RAG Pipeline Lab I | Practical |
-| 70 | Wednesday | RAG Pipeline Lab II | Practical |
-| 71 | Friday | Advanced RAG Techniques | Mixed |
-| 72 | Monday | Multimodal RAG | Mixed |
-| 73 | Wednesday | RAG Evaluation (RAGAS) | Mixed |
-| 74 | Friday | **Milestone — Full RAG System** | Practical |
+| Session | Day | Topic | Type | Materials |
+|---|---|---|---|---|
+| 67 | Wednesday | RAG Fundamentals | Theory | [Slides](Session%2032/Session32a_RAG_Fundamentals.pptx) |
+| 68 | Friday | Vector Databases (FAISS, ChromaDB, Pinecone) | Mixed | [Slides](Session%2032/Session32b_VectorDatabases.pptx) · [Notebook](Session%2032/Session32b_VectorDatabases_Notebook.ipynb) |
+| 69 | Monday | RAG Pipeline Lab I | Practical | [Notebook](Session%2033/Session33_RAG_Pipeline_Lab.ipynb) · [Guide](Session%2033/Session33_RAG_Pipeline_Lab_Guide.md) |
+| 70 | Wednesday | RAG Pipeline Lab II | Practical | |
+| 71 | Friday | Advanced RAG Techniques | Mixed | |
+| 72 | Monday | Multimodal RAG | Mixed | |
+| 73 | Wednesday | RAG Evaluation (RAGAS) | Mixed | |
+| 74 | Friday | **Milestone — Full RAG System** | Practical | |
 
 ### Phase 10 — AI Agents (Weeks 26–28)
 
