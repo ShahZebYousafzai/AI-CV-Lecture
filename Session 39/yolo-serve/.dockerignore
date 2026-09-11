@@ -1,0 +1,38 @@
+# Everything here is excluded from the build context.
+# A fat context is slow to send to the daemon and is the usual way secrets
+# and 2 GB of virtualenv end up inside an image.
+
+.git
+.gitignore
+.venv
+venv
+env
+
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# The weights are downloaded inside the build, not copied from the host,
+# so the context stays small and the image is reproducible.
+models/
+runs/
+
+samples/
+tests/
+notebooks/
+docs/
+
+.env
+.env.*
+!.env.example
+
+*.md
+!README.md
+
+Dockerfile
+docker-compose.yml
+.dockerignore
+.github

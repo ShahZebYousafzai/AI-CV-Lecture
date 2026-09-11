@@ -1,0 +1,34 @@
+# Local convenience only. `docker compose up --build` is shorter to type and
+# harder to get wrong than a long `docker run` line, and it keeps the ports,
+# environment and health check in version control where the team can see them.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: yolo-serve:local
+    container_name: yolo-serve
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: docker
+      APP_LOG_LEVEL: INFO
+      APP_CONF_THRESHOLD: "0.25"
+      APP_TORCH_THREADS: "2"
+      APP_INFERENCE_CONCURRENCY: "2"
+      APP_ENABLE_DEMO_ROUTES: "false"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8000/health/ready"]
+      interval: 30s
+      timeout: 5s
+      start_period: 90s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          # Match this to the instance you will deploy on, so you find out
+          # about memory limits on your laptop rather than in production.
+          cpus: "2.0"
+          memory: 2G

@@ -1,0 +1,14 @@
+# PyTorch, CPU build only.
+#
+# `pip install torch` from PyPI pulls the CUDA build and roughly 2 GB of
+# NVIDIA runtime libraries that a CPU instance will never load. Pointing pip
+# at PyTorch's CPU index instead is the single biggest size win available in
+# this image: about 2.5 GB down to about 250 MB.
+#
+# On a GPU instance, delete this file from the Docker build and let
+# requirements.txt pull the default CUDA wheels instead.
+
+--index-url https://download.pytorch.org/whl/cpu
+
+torch==2.14.0
+torchvision==0.29.0

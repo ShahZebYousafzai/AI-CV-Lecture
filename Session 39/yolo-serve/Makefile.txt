@@ -1,0 +1,52 @@
+# Saved as Makefile.txt because the sync tool refuses to write a file named
+# "Makefile". Rename it to Makefile (no extension) to use it, or ignore it:
+# every command below is also spelled out in README.md.
+
+# Short names for the commands used in the session.
+# `make <target>` beats scrolling back through the terminal history.
+
+IMAGE ?= yolo-serve
+TAG   ?= 1.0.0
+PORT  ?= 8000
+
+.PHONY: help setup run test bench blocking docker-build docker-run docker-stop clean
+
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+
+setup:  ## Install dependencies and fetch the model plus sample images
+	pip install -r requirements-torch-cpu.txt
+	pip install -r requirements-dev.txt
+	python scripts/download_model.py
+	python scripts/download_samples.py
+
+run:  ## Run the API locally with autoreload
+	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
+
+run-demo:  ## Run locally with the blocking teaching route enabled
+	APP_ENABLE_DEMO_ROUTES=true uvicorn app.main:app --host 0.0.0.0 --port $(PORT)
+
+test:  ## Run the test suite
+	pytest
+
+bench:  ## Measure single vs batch vs async against a running server
+	python scripts/benchmark.py --url http://localhost:$(PORT) --n 8
+
+blocking:  ## Show the event loop stalling on a blocking handler
+	python scripts/blocking_demo.py --url http://localhost:$(PORT) --n 8
+
+docker-build:  ## Build the production image
+	docker build -t $(IMAGE):$(TAG) -t $(IMAGE):latest .
+
+docker-run:  ## Run the production image
+	docker run --rm -d --name $(IMAGE) -p $(PORT):8000 \
+		-e APP_LOG_LEVEL=INFO $(IMAGE):latest
+	@echo "http://localhost:$(PORT)/docs"
+
+docker-stop:  ## Stop the running container
+	-docker stop $(IMAGE)
+
+clean:  ## Remove caches
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	rm -rf .pytest_cache .ruff_cache

@@ -1,0 +1,13 @@
+# Runtime dependencies, excluding PyTorch.
+# PyTorch is installed separately from its CPU index: see requirements-torch-cpu.txt
+# and the note in the Dockerfile about why that matters.
+
+fastapi==0.141.1
+uvicorn[standard]==0.46.0
+gunicorn==23.0.0
+pydantic==2.13.3
+pydantic-settings==2.14.0
+python-multipart==0.0.26
+pillow==12.2.0
+numpy==2.4.4
+ultralytics==8.4.146
